@@ -42,6 +42,12 @@ export default function Sidebar() {
             </div>
 
             <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                <div className="pb-2">
+                    <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        Général
+                    </p>
+                </div>
+
                 <Link
                     href="/dashboard"
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard')
@@ -52,20 +58,6 @@ export default function Sidebar() {
                     <span>📊</span>
                     <span className="font-medium">Vue d'ensemble</span>
                 </Link>
-
-                {/* @ts-ignore */}
-                {session?.user?.role === 'ADMIN' && (
-                    <Link
-                        href="/dashboard/admin"
-                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin')
-                            ? 'bg-red-600 text-white'
-                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                            }`}
-                    >
-                        <span>🛡️</span>
-                        <span className="font-medium">Administration</span>
-                    </Link>
-                )}
 
                 <Link
                     href="/countries"
@@ -116,6 +108,72 @@ export default function Sidebar() {
                     <span>⚔️</span>
                     <span className="font-medium">Armée</span>
                 </Link>
+
+                {/* @ts-ignore */}
+                {session?.user?.role === 'ADMIN' && (
+                    <>
+                        <div className="pt-4 pb-2">
+                            <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                Administration
+                            </p>
+                        </div>
+
+                        <Link
+                            href="/dashboard/admin/users"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/users')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>👥</span>
+                            <span className="font-medium">Joueurs</span>
+                        </Link>
+
+                        <Link
+                            href="/dashboard/admin/countries/create"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/countries/create')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>➕</span>
+                            <span className="font-medium">Créer un Pays</span>
+                        </Link>
+
+                        <Link
+                            href="/dashboard/admin/cultures/create"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/cultures/create')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>🎭</span>
+                            <span className="font-medium">Créer une Culture</span>
+                        </Link>
+
+                        <Link
+                            href="/dashboard/admin/provinces/create"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/provinces/create')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>🗺️</span>
+                            <span className="font-medium">Créer une Province</span>
+                        </Link>
+
+                        <Link
+                            href="/dashboard/admin/cities/create"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/cities/create')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>🏙️</span>
+                            <span className="font-medium">Créer une Ville</span>
+                        </Link>
+                    </>
+                )}
 
             </nav>
 

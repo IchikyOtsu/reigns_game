@@ -26,7 +26,10 @@ model Country {
   id          String   @id @default(uuid())
   azgaarId    Int?     // ID correspondant dans Azgaar
   name        String
-  capital     String
+  emblem      String?  // URL de l'image (Supabase Storage)
+  
+  capitalId   String?  @unique
+  capital     City?    @relation("CountryCapital", fields: [capitalId], references: [id])
   
   regimeId    String
   regime      Regime   @relation(fields: [regimeId], references: [id])
@@ -41,11 +44,11 @@ model Country {
   religionId  String?
   religion    Religion? @relation(fields: [religionId], references: [id])
   
-  cultureId   String?
-  culture     Culture? @relation(fields: [cultureId], references: [id])
+  cultureId   String
+  culture     Culture   @relation(fields: [cultureId], references: [id])
 
   provinces   Province[]
-  cities      City[]
+  cities      City[]    @relation("CountryCities")
 }
 
 model Regime {
@@ -99,7 +102,9 @@ model City {
   isCapital  Boolean  @default(false)
 
   countryId  String
-  country    Country  @relation(fields: [countryId], references: [id])
+  country    Country  @relation("CountryCities", fields: [countryId], references: [id])
+  
+  capitalOf  Country? @relation("CountryCapital")
   
   provinceId String?
   province   Province? @relation(fields: [provinceId], references: [id])
