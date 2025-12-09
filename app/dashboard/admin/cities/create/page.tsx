@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import CreateCityForm from "./CreateCityForm";
+import CityList from "./CityList";
 
 export default async function CreateCityPage() {
     const session = await getServerSession(authOptions);
@@ -51,47 +52,7 @@ export default async function CreateCityPage() {
                 <div className="p-6 border-b border-slate-200">
                     <h2 className="text-lg font-semibold text-slate-800">Liste des Villes ({cities?.length || 0})</h2>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-slate-600">
-                        <thead className="bg-slate-50 text-slate-900 font-medium border-b border-slate-200">
-                            <tr>
-                                <th className="px-6 py-4">Nom</th>
-                                <th className="px-6 py-4">Pays</th>
-                                <th className="px-6 py-4">Province</th>
-                                <th className="px-6 py-4">Population</th>
-                                <th className="px-6 py-4">Type</th>
-                                <th className="px-6 py-4">Capitale</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200">
-                            {cities?.map((city) => (
-                                <tr key={city.id} className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-6 py-4 font-medium text-slate-900">{city.name}</td>
-                                    <td className="px-6 py-4">{city.country?.name}</td>
-                                    <td className="px-6 py-4">{city.province?.name || "-"}</td>
-                                    <td className="px-6 py-4">{city.population?.toLocaleString() || "-"}</td>
-                                    <td className="px-6 py-4">{city.type || "-"}</td>
-                                    <td className="px-6 py-4">
-                                        {city.isCapital ? (
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                                Oui
-                                            </span>
-                                        ) : (
-                                            <span className="text-slate-400">Non</span>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                            {(!cities || cities.length === 0) && (
-                                <tr>
-                                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                                        Aucune ville trouvée.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <CityList cities={cities || []} provinces={provinces || []} />
             </div>
         </div>
     );
