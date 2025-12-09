@@ -265,11 +265,14 @@ export async function createProvince(formData: FormData) {
     const emblem = formData.get("emblem") as string;
     const areaKm2 = formData.get("areaKm2") ? parseFloat(formData.get("areaKm2") as string) : null;
     const population = formData.get("population") ? parseInt(formData.get("population") as string) : null;
+    const biomesJson = formData.get("biomes") as string;
+
+    const provinceId = randomUUID();
 
     const { error } = await supabaseAdmin
         .from("Province")
         .insert({
-            id: randomUUID(),
+            id: provinceId,
             name,
             countryId,
             color,
@@ -281,6 +284,32 @@ export async function createProvince(formData: FormData) {
     if (error) {
         console.error("Erreur createProvince:", error);
         throw new Error("Erreur lors de la création de la province: " + error.message);
+    }
+
+    // Gestion des biomes
+    if (biomesJson) {
+        try {
+            const biomes = JSON.parse(biomesJson);
+            if (Array.isArray(biomes) && biomes.length > 0) {
+                const provinceBiomes = biomes.map((b: any) => ({
+                    id: randomUUID(),
+                    provinceId: provinceId,
+                    biomeId: b.biomeId,
+                    cellCount: Number(b.cellCount)
+                }));
+
+                const { error: biomesError } = await supabaseAdmin
+                    .from("ProvinceBiome")
+                    .insert(provinceBiomes);
+
+                if (biomesError) {
+                    console.error("Erreur createProvince (Biomes):", biomesError);
+                    // On ne bloque pas, mais on log
+                }
+            }
+        } catch (e) {
+            console.error("Erreur parsing biomes JSON:", e);
+        }
     }
 
     revalidatePath("/dashboard/admin/provinces/create");
@@ -297,6 +326,7 @@ export async function updateProvince(formData: FormData) {
     const emblem = formData.get("emblem") as string;
     const areaKm2 = formData.get("areaKm2") ? parseFloat(formData.get("areaKm2") as string) : null;
     const population = formData.get("population") ? parseInt(formData.get("population") as string) : null;
+    const biomesJson = formData.get("biomes") as string;
 
     const { error } = await supabaseAdmin
         .from("Province")
@@ -313,6 +343,42 @@ export async function updateProvince(formData: FormData) {
     if (error) {
         console.error("Erreur updateProvince:", error);
         throw new Error("Erreur lors de la modification de la province: " + error.message);
+    }
+
+    // Gestion des biomes (Suppression et recréation)
+    if (biomesJson) {
+        try {
+            // 1. Supprimer les anciens biomes
+            const { error: deleteError } = await supabaseAdmin
+                .from("ProvinceBiome")
+                .delete()
+                .eq("provinceId", id);
+
+            if (deleteError) {
+                console.error("Erreur updateProvince (Delete Biomes):", deleteError);
+            }
+
+            // 2. Insérer les nouveaux biomes
+            const biomes = JSON.parse(biomesJson);
+            if (Array.isArray(biomes) && biomes.length > 0) {
+                const provinceBiomes = biomes.map((b: any) => ({
+                    id: randomUUID(),
+                    provinceId: id,
+                    biomeId: b.biomeId,
+                    cellCount: Number(b.cellCount)
+                }));
+
+                const { error: insertError } = await supabaseAdmin
+                    .from("ProvinceBiome")
+                    .insert(provinceBiomes);
+
+                if (insertError) {
+                    console.error("Erreur updateProvince (Insert Biomes):", insertError);
+                }
+            }
+        } catch (e) {
+            console.error("Erreur parsing biomes JSON:", e);
+        }
     }
 
     revalidatePath("/dashboard/admin/provinces/create");

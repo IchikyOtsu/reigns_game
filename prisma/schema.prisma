@@ -67,7 +67,7 @@ model ResourceType {
   name        String   @unique
   description String?
   
-  provinceResources ProvinceResource[]
+  biomeResources BiomeResource[]
 }
 
 // --- Biomes ---
@@ -78,11 +78,25 @@ model Biome {
   color           String?  // Pour l'affichage
   
   provinceBiomes  ProvinceBiome[]
+  resources       BiomeResource[]
+}
+
+model BiomeResource {
+  id             String       @id @default(uuid())
+  quantity       Int          @default(0) // Quantité de ressource par unité de biome
+  
+  biomeId        String
+  biome          Biome        @relation(fields: [biomeId], references: [id])
+  
+  resourceTypeId String
+  resourceType   ResourceType @relation(fields: [resourceTypeId], references: [id])
+  
+  @@unique([biomeId, resourceTypeId])
 }
 
 model ProvinceBiome {
   id          String   @id @default(uuid())
-  percentage  Float    // Pourcentage de couverture dans la province
+  cellCount   Int      // Nombre de cellules de ce biome dans la province
   
   provinceId  String
   province    Province @relation(fields: [provinceId], references: [id])
@@ -91,19 +105,6 @@ model ProvinceBiome {
   biome       Biome    @relation(fields: [biomeId], references: [id])
   
   @@unique([provinceId, biomeId])
-}
-
-model ProvinceResource {
-  id             String       @id @default(uuid())
-  quantity       Int          @default(0) // "Unités" de ressources
-  
-  provinceId     String
-  province       Province     @relation(fields: [provinceId], references: [id])
-  
-  resourceTypeId String
-  resourceType   ResourceType @relation(fields: [resourceTypeId], references: [id])
-  
-  @@unique([provinceId, resourceTypeId])
 }
 
 model Religion {
@@ -178,7 +179,6 @@ model Province {
   
   cities    City[]
   biomes    ProvinceBiome[]
-  resources ProvinceResource[]
 }
 
 model City {
