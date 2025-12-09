@@ -2,9 +2,15 @@
 
 import Link from 'next/link';
 import { useSession, signIn, signOut } from "next-auth/react";
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
     const { data: session } = useSession();
+    const pathname = usePathname();
+
+    if (pathname?.startsWith('/dashboard')) {
+        return null;
+    }
 
     return (
         <nav className="bg-slate-900 text-white shadow-md">
@@ -22,18 +28,14 @@ export default function Navbar() {
                                 >
                                     Accueil
                                 </Link>
-                                <Link
-                                    href="/countries"
-                                    className="hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                                >
-                                    Carte du Monde
-                                </Link>
-                                <span className="text-slate-500 px-3 py-2 text-sm font-medium cursor-not-allowed">
-                                    Règles (Bientôt)
-                                </span>
-                                <span className="text-slate-500 px-3 py-2 text-sm font-medium cursor-not-allowed">
-                                    Classement (Bientôt)
-                                </span>
+                                {session && (
+                                    <Link
+                                        href="/dashboard"
+                                        className="hover:bg-slate-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                                    >
+                                        Dashboard
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </div>

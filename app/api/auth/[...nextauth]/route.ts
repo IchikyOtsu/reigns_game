@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
+import NextAuth, { AuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import { supabase } from "@/lib/supabase";
 import { randomUUID } from "crypto";
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
     providers: [
         DiscordProvider({
             clientId: process.env.DISCORD_CLIENT_ID!,
@@ -87,6 +87,8 @@ const handler = NextAuth({
             return token;
         }
     },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
