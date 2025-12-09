@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Utilisateurs (Joueurs) ---
+model Player {
+  id            String   @id @default(uuid())
+  discordId     String   @unique // L'ID unique Discord (ex: 123456789)
+  discordPseudo String   // Le pseudo affiché
+  createdAt     DateTime @default(now())
+  
+  // Relation : Un joueur possède un pays
+  country       Country?
+}
+
+// --- Géopolitique ---
+model Country {
+  id          String   @id @default(uuid())
+  name        String
+  capital     String
+  regime      String   // Ex: Monarchie, République...
+  areaKm2     Float    // Superficie
+  population  Int      // Population totale
+  
+  // Relations
+  playerId    String   @unique // Clé étrangère vers le joueur
+  player      Player   @relation(fields: [playerId], references: [id])
+  
+  religionId  String?
+  religion    Religion? @relation(fields: [religionId], references: [id])
+  
+  cultureId   String?
+  culture     Culture? @relation(fields: [cultureId], references: [id])
+
+  // Un pays a plusieurs provinces et villes
+  provinces   Province[]
+  cities      City[]
+}
+
+model Religion {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  description String?
+  
+  countries Country[]
+}
+
+model Culture {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  description String?
+
+  countries Country[]
+}
+
+// --- Géographie ---
+model Province {
+  id        String   @id @default(uuid())
+  name      String
+  
+  countryId String
+  country   Country  @relation(fields: [countryId], references: [id])
+  
+  cities    City[]
+}
+
+model City {
+  id         String   @id @default(uuid())
+  name       String
+  population Int?
+  isCapital  Boolean  @default(false)
+
+  countryId  String
+  country    Country  @relation(fields: [countryId], references: [id])
+  
+  provinceId String?
+  province   Province? @relation(fields: [provinceId], references: [id])
+}
