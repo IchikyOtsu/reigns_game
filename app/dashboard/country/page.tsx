@@ -23,8 +23,8 @@ export default async function CountryPage() {
                 regime:Regime(name, category),
                 religion:Religion(name),
                 culture:Culture(name),
-                provinces:Province(name, population, areaKm2, emblem),
-                cities:City!City_countryId_fkey(name, population, isCapital, isPort, isWalled, hasCitadel, hasMarketplace, hasReligiousCenter, hasShanty)
+                provinces:Province(id, name, population, areaKm2, emblem),
+                cities:City!City_countryId_fkey(id, name, population, isCapital, isPort, isWalled, hasCitadel, hasMarketplace, hasReligiousCenter, hasShanty)
             )
         `)
         .eq('discordId', discordId)

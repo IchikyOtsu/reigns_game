@@ -37,6 +37,7 @@ model Country {
   color       String?  // Code couleur Hex (ex: #ff0000)
   areaKm2     Float
   population  Int
+  treasury    Int      @default(0)
   
   playerId    String   @unique
   player      Player   @relation(fields: [playerId], references: [id])
@@ -55,8 +56,54 @@ model Regime {
   id        String    @id @default(uuid())
   name      String    @unique
   category  String    // Monarchy, Republic, etc.
+  baseManpowerRate Float @default(0.15) // Pourcentage de la population recrutable (ex: 0.15 pour 15%)
   
   countries Country[]
+}
+
+// --- Ressources ---
+model ResourceType {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  
+  provinceResources ProvinceResource[]
+}
+
+// --- Biomes ---
+model Biome {
+  id              String   @id @default(uuid())
+  name            String   @unique // Grassland, Taiga, etc.
+  habitability    Int      // Pourcentage (0-100)
+  color           String?  // Pour l'affichage
+  
+  provinceBiomes  ProvinceBiome[]
+}
+
+model ProvinceBiome {
+  id          String   @id @default(uuid())
+  percentage  Float    // Pourcentage de couverture dans la province
+  
+  provinceId  String
+  province    Province @relation(fields: [provinceId], references: [id])
+  
+  biomeId     String
+  biome       Biome    @relation(fields: [biomeId], references: [id])
+  
+  @@unique([provinceId, biomeId])
+}
+
+model ProvinceResource {
+  id             String       @id @default(uuid())
+  quantity       Int          @default(0) // "Unités" de ressources
+  
+  provinceId     String
+  province       Province     @relation(fields: [provinceId], references: [id])
+  
+  resourceTypeId String
+  resourceType   ResourceType @relation(fields: [resourceTypeId], references: [id])
+  
+  @@unique([provinceId, resourceTypeId])
 }
 
 model Religion {
@@ -130,6 +177,8 @@ model Province {
   country   Country  @relation(fields: [countryId], references: [id])
   
   cities    City[]
+  biomes    ProvinceBiome[]
+  resources ProvinceResource[]
 }
 
 model City {
