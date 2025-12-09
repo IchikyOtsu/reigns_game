@@ -94,11 +94,9 @@ model Province {
 
 model City {
   id         String   @id @default(uuid())
-  azgaarId   Int?
   name       String
   population Int?
   type       String?  // Ex: Capital, Town, Port...
-  coordinates Json?   // { x: 100, y: 200 }
   isCapital  Boolean  @default(false)
 
   countryId  String

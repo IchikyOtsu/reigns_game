@@ -41,7 +41,7 @@ export async function createCulture(formData: FormData) {
         throw new Error("Erreur lors de la création de la culture: " + error.message);
     }
 
-    revalidatePath("/dashboard/admin/countries/create");
+    revalidatePath("/dashboard/admin/cultures/create");
     return { success: true };
 }
 
@@ -52,6 +52,7 @@ export async function createCountry(formData: FormData) {
 
     const name = formData.get("name") as string;
     const capitalName = formData.get("capitalName") as string;
+    const capitalProvinceName = formData.get("capitalProvinceName") as string;
     const regimeId = formData.get("regimeId") as string;
     const cultureId = formData.get("cultureId") as string;
     const religionId = formData.get("religionId") as string || null;
@@ -84,15 +85,34 @@ export async function createCountry(formData: FormData) {
         throw new Error("Erreur création pays: " + countryError.message);
     }
 
-    // 2. Créer la Capitale (Ville)
+    // 2. Créer la Province de la Capitale
+    const { data: province, error: provinceError } = await supabaseAdmin
+        .from("Province")
+        .insert({
+            id: randomUUID(),
+            name: capitalProvinceName,
+            countryId: country.id,
+            color: color // On utilise la couleur du pays par défaut
+        })
+        .select()
+        .single();
+
+    if (provinceError) {
+        console.error("Erreur createCountry (Province):", provinceError);
+        // On ne bloque pas tout pour ça, mais c'est gênant
+    }
+
+    // 3. Créer la Capitale (Ville)
     const { data: city, error: cityError } = await supabaseAdmin
         .from("City")
         .insert({
             id: randomUUID(),
             name: capitalName,
             countryId: country.id,
+            provinceId: province?.id || null,
             isCapital: true,
-            population: Math.floor(population / 10)
+            population: Math.floor(population / 10),
+            type: "Capitale"
         })
         .select()
         .single();
@@ -103,7 +123,7 @@ export async function createCountry(formData: FormData) {
         throw new Error("Erreur création capitale: " + cityError.message);
     }
 
-    // 3. Mettre à jour le Pays avec l'ID de la Capitale
+    // 4. Mettre à jour le Pays avec l'ID de la Capitale
     const { error: updateError } = await supabaseAdmin
         .from("Country")
         .update({ capitalId: city.id })
@@ -113,7 +133,7 @@ export async function createCountry(formData: FormData) {
         throw new Error("Erreur liaison capitale: " + updateError.message);
     }
 
-    revalidatePath("/dashboard/admin/users");
+    revalidatePath("/dashboard/admin/countries/create");
     return { success: true };
 }
 
@@ -153,37 +173,45 @@ export async function createCity(formData: FormData) {
 
     const name = formData.get("name") as string;
     const countryId = formData.get("countryId") as string;
-    const provinceId = formData.get("provinceId") as string || null;
+    const provinceId = formData.get("provinceId") as string; // Required now
     const population = formData.get("population") ? parseInt(formData.get("population") as string) : null;
     const type = formData.get("type") as string || null;
-    const azgaarId = formData.get("azgaarId") ? parseInt(formData.get("azgaarId") as string) : null;
     const isCapital = formData.get("isCapital") === "on";
 
-    // Gestion des coordonnées
-    const coordX = formData.get("coordX");
-    const coordY = formData.get("coordY");
-    let coordinates = null;
-    if (coordX && coordY) {
-        coordinates = { x: parseFloat(coordX as string), y: parseFloat(coordY as string) };
+    if (!provinceId) {
+        throw new Error("La province est obligatoire pour créer une ville.");
     }
+
+    const cityId = randomUUID();
 
     const { error } = await supabaseAdmin
         .from("City")
         .insert({
-            id: randomUUID(),
+            id: cityId,
             name,
             countryId,
             provinceId,
             population,
             type,
-            azgaarId,
-            isCapital,
-            coordinates
+            isCapital
         });
 
     if (error) {
         console.error("Erreur createCity:", error);
         throw new Error("Erreur lors de la création de la ville: " + error.message);
+    }
+
+    // Si c'est une capitale, on met à jour le pays
+    if (isCapital) {
+        const { error: updateError } = await supabaseAdmin
+            .from("Country")
+            .update({ capitalId: cityId })
+            .eq("id", countryId);
+
+        if (updateError) {
+            console.error("Erreur updateCountry (Capital):", updateError);
+            // On ne bloque pas, mais c'est un problème
+        }
     }
 
     revalidatePath("/dashboard/admin/cities/create");

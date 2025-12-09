@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import CreateProvinceForm from "./CreateProvinceForm";
 
 export default async function CreateProvincePage() {
@@ -13,13 +13,13 @@ export default async function CreateProvincePage() {
     }
 
     // Fetch countries for the dropdown
-    const { data: countries } = await supabase
+    const { data: countries } = await supabaseAdmin
         .from('Country')
         .select('id, name')
         .order('name');
 
     // Fetch existing provinces for the list
-    const { data: provinces } = await supabase
+    const { data: provinces } = await supabaseAdmin
         .from('Province')
         .select(`
             *,

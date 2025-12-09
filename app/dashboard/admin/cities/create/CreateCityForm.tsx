@@ -92,8 +92,9 @@ export default function CreateCityForm({ countries, provinces }: Props) {
 
                 {/* Province (Filtrée) */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Province (Optionnel)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Province</label>
                     <select
+                        required
                         name="provinceId"
                         className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
                         disabled={!selectedCountryId}
@@ -118,24 +119,6 @@ export default function CreateCityForm({ countries, provinces }: Props) {
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Type (ex: Port, Bourg...)</label>
                     <input name="type" type="text" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                </div>
-
-                {/* Azgaar ID */}
-                <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">ID Azgaar (Optionnel)</label>
-                    <input name="azgaarId" type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                </div>
-
-                {/* Coordonnées */}
-                <div className="md:col-span-2 grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Coord X</label>
-                        <input name="coordX" type="number" step="any" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Coord Y</label>
-                        <input name="coordY" type="number" step="any" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                    </div>
                 </div>
 
                 {/* Capitale */}

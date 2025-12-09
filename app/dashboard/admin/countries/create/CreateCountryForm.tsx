@@ -59,7 +59,7 @@ export default function CreateCountryForm({ regimes, cultures, religions, player
             // Appel de l'action serveur pour la création en DB
             await createCountry(formData);
 
-            router.push("/dashboard/admin/users");
+            // router.push("/dashboard/admin/users"); // Supprimé pour rester sur la page
             router.refresh();
 
         } catch (err: any) {
@@ -91,6 +91,11 @@ export default function CreateCountryForm({ regimes, cultures, religions, player
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Nom de la Capitale</label>
                         <input required name="capitalName" type="text" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Nom de la Province (Capitale)</label>
+                        <input required name="capitalProvinceName" type="text" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
                     </div>
 
                     <div>

@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import CreateCityForm from "./CreateCityForm";
 
 export default async function CreateCityPage() {
@@ -13,26 +13,30 @@ export default async function CreateCityPage() {
     }
 
     // Fetch countries
-    const { data: countries } = await supabase
+    const { data: countries } = await supabaseAdmin
         .from('Country')
         .select('id, name')
         .order('name');
 
     // Fetch provinces
-    const { data: provinces } = await supabase
+    const { data: provinces } = await supabaseAdmin
         .from('Province')
         .select('id, name, countryId')
         .order('name');
 
     // Fetch existing cities
-    const { data: cities } = await supabase
+    const { data: cities, error: citiesError } = await supabaseAdmin
         .from('City')
         .select(`
             *,
-            country:Country(name),
+            country:Country!countryId(name),
             province:Province(name)
         `)
         .order('name');
+
+    if (citiesError) {
+        console.error("Error fetching cities:", citiesError);
+    }
 
     return (
         <div className="space-y-8">

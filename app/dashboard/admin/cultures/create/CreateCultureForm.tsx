@@ -22,8 +22,10 @@ export default function CreateCultureForm() {
         try {
             await createCulture(formData);
 
-            router.push("/dashboard/admin/countries/create");
+            // On reste sur la page et on rafraîchit la liste
+            // router.push("/dashboard/admin/countries/create"); // Supprimé
             router.refresh();
+            // Reset form logic could be added here if needed, but native form reset is tricky with controlled inputs
 
         } catch (err: any) {
             console.error("Erreur lors de la création:", err);

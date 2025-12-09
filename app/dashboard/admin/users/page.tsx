@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export default async function AdminPage() {
     const session = await getServerSession(authOptions);
@@ -12,7 +12,7 @@ export default async function AdminPage() {
     }
 
     // Récupérer tous les joueurs
-    const { data: players, error } = await supabase
+    const { data: players, error } = await supabaseAdmin
         .from('Player')
         .select(`
             *,
@@ -50,8 +50,8 @@ export default async function AdminPage() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${player.role === 'ADMIN'
-                                                ? 'bg-red-100 text-red-800'
-                                                : 'bg-blue-100 text-blue-800'
+                                            ? 'bg-red-100 text-red-800'
+                                            : 'bg-blue-100 text-blue-800'
                                             }`}>
                                             {player.role}
                                         </span>
