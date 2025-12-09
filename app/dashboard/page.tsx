@@ -1,8 +1,9 @@
 import { getServerSession } from "next-auth";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export default async function DashboardPage() {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     // Récupérer les infos du joueur et de son pays
     let playerInfo = null;
@@ -10,8 +11,9 @@ export default async function DashboardPage() {
     if (session?.user) {
         // @ts-ignore
         const discordId = session.user.discordId;
+        console.log("Dashboard - Discord ID:", discordId);
 
-        const { data } = await supabase
+        const { data, error } = await supabaseAdmin
             .from('Player')
             .select(`
         *,
@@ -20,7 +22,19 @@ export default async function DashboardPage() {
             .eq('discordId', discordId)
             .single();
 
+        if (error) {
+            console.error("Dashboard - Error fetching player info:", error);
+        } else {
+            console.log("Dashboard - Player Data:", JSON.stringify(data, null, 2));
+        }
+
         playerInfo = data;
+        
+        // Handle case where country might be an array (PostgREST quirk)
+        if (playerInfo && Array.isArray(playerInfo.country)) {
+             // @ts-ignore
+            playerInfo.country = playerInfo.country[0];
+        }
     }
 
     return (
@@ -37,27 +51,23 @@ export default async function DashboardPage() {
                         <span>🏰</span> Mon Pays
                     </h2>
                     {playerInfo?.country ? (
-                        <div>
-                            <p className="text-2xl font-bold text-amber-600 mb-1">{playerInfo.country.name}</p>
-                            <p className="text-sm text-slate-500 mb-4">Capitale : {playerInfo.country.capital}</p>
-
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-600">Population</span>
-                                    <span className="font-medium">{playerInfo.country.population?.toLocaleString()}</span>
+                        <div className="flex flex-col items-center text-center">
+                            {playerInfo.country.emblem ? (
+                                <img
+                                    src={playerInfo.country.emblem}
+                                    alt={`Emblème de ${playerInfo.country.name}`}
+                                    className="w-32 h-32 object-contain mb-4"
+                                />
+                            ) : (
+                                <div className="w-32 h-32 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-4xl">
+                                    🏰
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-600">Superficie</span>
-                                    <span className="font-medium">{playerInfo.country.areaKm2?.toLocaleString()} km²</span>
-                                </div>
-                            </div>
+                            )}
+                            <p className="text-2xl font-bold text-amber-600">{playerInfo.country.name}</p>
                         </div>
                     ) : (
                         <div className="text-center py-6">
                             <p className="text-slate-500 mb-4">Vous n'avez pas encore de pays.</p>
-                            <button className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-amber-700">
-                                Créer / Rejoindre un pays
-                            </button>
                         </div>
                     )}
                 </div>
