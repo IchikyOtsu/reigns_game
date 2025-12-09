@@ -48,8 +48,22 @@ model Country {
   cultureId   String
   culture     Culture   @relation(fields: [cultureId], references: [id])
 
+  army        Army?
+
   provinces   Province[]
   cities      City[]    @relation("CountryCities")
+}
+
+model Army {
+  id        String   @id @default(uuid())
+  countryId String   @unique
+  country   Country  @relation(fields: [countryId], references: [id])
+  
+  infantry  Int      @default(0)
+  archers   Int      @default(0)
+  cavalry   Int      @default(0)
+  artillery Int      @default(0)
+  fleet     Int      @default(0)
 }
 
 model Regime {
