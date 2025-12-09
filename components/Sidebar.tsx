@@ -99,6 +99,17 @@ export default function Sidebar() {
                 </Link>
 
                 <Link
+                    href="/dashboard/resources"
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/resources')
+                        ? 'bg-amber-600 text-white'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        }`}
+                >
+                    <span>⛏️</span>
+                    <span className="font-medium">Ressources</span>
+                </Link>
+
+                <Link
                     href="/dashboard/military"
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/military')
                         ? 'bg-amber-600 text-white'
@@ -182,6 +193,17 @@ export default function Sidebar() {
                         >
                             <span>🏙️</span>
                             <span className="font-medium">Créer une Ville</span>
+                        </Link>
+
+                        <Link
+                            href="/dashboard/admin/biomes"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/biomes')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>🌿</span>
+                            <span className="font-medium">Biomes & Ressources</span>
                         </Link>
                     </>
                 )}
