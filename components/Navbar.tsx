@@ -61,7 +61,7 @@ export default function Navbar() {
                                 </div>
                             ) : (
                                 <button
-                                    onClick={() => signIn('discord')}
+                                    onClick={() => signIn('discord', { callbackUrl: '/dashboard' })}
                                     className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                                 >
                                     Connexion Discord

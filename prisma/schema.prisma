@@ -13,25 +13,26 @@ datasource db {
 // --- Utilisateurs (Joueurs) ---
 model Player {
   id            String   @id @default(uuid())
-  discordId     String   @unique // L'ID unique Discord (ex: 123456789)
-  discordPseudo String   // Le pseudo affiché
+  discordId     String   @unique
+  discordPseudo String
+  role          String   @default("USER") // "USER" ou "ADMIN"
   createdAt     DateTime @default(now())
   
-  // Relation : Un joueur possède un pays
   country       Country?
 }
 
 // --- Géopolitique ---
 model Country {
   id          String   @id @default(uuid())
+  azgaarId    Int?     // ID correspondant dans Azgaar
   name        String
   capital     String
-  regime      String   // Ex: Monarchie, République...
-  areaKm2     Float    // Superficie
-  population  Int      // Population totale
+  regime      String
+  color       String?  // Code couleur Hex (ex: #ff0000)
+  areaKm2     Float
+  population  Int
   
-  // Relations
-  playerId    String   @unique // Clé étrangère vers le joueur
+  playerId    String   @unique
   player      Player   @relation(fields: [playerId], references: [id])
   
   religionId  String?
@@ -40,14 +41,15 @@ model Country {
   cultureId   String?
   culture     Culture? @relation(fields: [cultureId], references: [id])
 
-  // Un pays a plusieurs provinces et villes
   provinces   Province[]
   cities      City[]
 }
 
 model Religion {
   id        String    @id @default(uuid())
+  azgaarId  Int?
   name      String    @unique
+  color     String?
   description String?
   
   countries Country[]
@@ -55,7 +57,9 @@ model Religion {
 
 model Culture {
   id        String    @id @default(uuid())
+  azgaarId  Int?
   name      String    @unique
+  color     String?
   description String?
 
   countries Country[]
@@ -64,7 +68,9 @@ model Culture {
 // --- Géographie ---
 model Province {
   id        String   @id @default(uuid())
+  azgaarId  Int?
   name      String
+  color     String?
   
   countryId String
   country   Country  @relation(fields: [countryId], references: [id])
@@ -74,8 +80,11 @@ model Province {
 
 model City {
   id         String   @id @default(uuid())
+  azgaarId   Int?
   name       String
   population Int?
+  type       String?  // Ex: Capital, Town, Port...
+  coordinates Json?   // { x: 100, y: 200 }
   isCapital  Boolean  @default(false)
 
   countryId  String
