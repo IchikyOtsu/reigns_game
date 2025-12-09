@@ -45,19 +45,33 @@ export default function Sidebar() {
                 <Link
                     href="/dashboard"
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard')
-                            ? 'bg-amber-600 text-white'
-                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        ? 'bg-amber-600 text-white'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                         }`}
                 >
                     <span>📊</span>
                     <span className="font-medium">Vue d'ensemble</span>
                 </Link>
 
+                {/* @ts-ignore */}
+                {session?.user?.role === 'ADMIN' && (
+                    <Link
+                        href="/dashboard/admin"
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin')
+                            ? 'bg-red-600 text-white'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                            }`}
+                    >
+                        <span>🛡️</span>
+                        <span className="font-medium">Administration</span>
+                    </Link>
+                )}
+
                 <Link
                     href="/countries"
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/countries')
-                            ? 'bg-amber-600 text-white'
-                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        ? 'bg-amber-600 text-white'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                         }`}
                 >
                     <span>🌍</span>
@@ -73,8 +87,8 @@ export default function Sidebar() {
                 <Link
                     href="/dashboard/country"
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/country')
-                            ? 'bg-amber-600 text-white'
-                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        ? 'bg-amber-600 text-white'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                         }`}
                 >
                     <span>🏰</span>
@@ -84,8 +98,8 @@ export default function Sidebar() {
                 <Link
                     href="/dashboard/economy"
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/economy')
-                            ? 'bg-amber-600 text-white'
-                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        ? 'bg-amber-600 text-white'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                         }`}
                 >
                     <span>💰</span>
@@ -95,8 +109,8 @@ export default function Sidebar() {
                 <Link
                     href="/dashboard/military"
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/military')
-                            ? 'bg-amber-600 text-white'
-                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        ? 'bg-amber-600 text-white'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                         }`}
                 >
                     <span>⚔️</span>

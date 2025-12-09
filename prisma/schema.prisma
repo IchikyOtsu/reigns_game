@@ -27,7 +27,10 @@ model Country {
   azgaarId    Int?     // ID correspondant dans Azgaar
   name        String
   capital     String
-  regime      String
+  
+  regimeId    String
+  regime      Regime   @relation(fields: [regimeId], references: [id])
+  
   color       String?  // Code couleur Hex (ex: #ff0000)
   areaKm2     Float
   population  Int
@@ -43,6 +46,14 @@ model Country {
 
   provinces   Province[]
   cities      City[]
+}
+
+model Regime {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  category  String    // Monarchy, Republic, etc.
+  
+  countries Country[]
 }
 
 model Religion {
