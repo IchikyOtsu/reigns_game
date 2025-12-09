@@ -29,10 +29,10 @@ export default async function DashboardPage() {
         }
 
         playerInfo = data;
-        
+
         // Handle case where country might be an array (PostgREST quirk)
         if (playerInfo && Array.isArray(playerInfo.country)) {
-             // @ts-ignore
+            // @ts-ignore
             playerInfo.country = playerInfo.country[0];
         }
     }
