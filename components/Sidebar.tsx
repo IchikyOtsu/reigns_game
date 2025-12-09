@@ -152,6 +152,17 @@ export default function Sidebar() {
                         </Link>
 
                         <Link
+                            href="/dashboard/admin/religions/create"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/religions/create')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>🛐</span>
+                            <span className="font-medium">Créer une Religion</span>
+                        </Link>
+
+                        <Link
                             href="/dashboard/admin/provinces/create"
                             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/provinces/create')
                                 ? 'bg-red-600 text-white'

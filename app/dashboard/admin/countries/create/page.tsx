@@ -19,6 +19,9 @@ export default async function CreateCountryPage() {
     const { data: religions } = await supabaseAdmin.from('Religion').select('*').order('name');
     const { data: players } = await supabaseAdmin.from('Player').select('*').order('discordPseudo');
 
+    // Récupérer toutes les villes pour le choix de la capitale (optimisation possible: ne charger que id, name, countryId)
+    const { data: cities } = await supabaseAdmin.from('City').select('id, name, countryId').order('name');
+
     // Récupérer les pays existants
     const { data: countries, error: countriesError } = await supabaseAdmin
         .from('Country')
@@ -55,7 +58,12 @@ export default async function CreateCountryPage() {
                 <div className="p-6 border-b border-slate-200">
                     <h2 className="text-lg font-semibold text-slate-800">Liste des Pays ({countries?.length || 0})</h2>
                 </div>
-                <CountryList countries={countries || []} cultures={cultures || []} />
+                <CountryList
+                    countries={countries || []}
+                    cultures={cultures || []}
+                    regimes={regimes || []}
+                    cities={cities || []}
+                />
             </div>
         </div>
     );

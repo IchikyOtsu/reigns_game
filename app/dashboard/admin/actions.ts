@@ -24,7 +24,11 @@ export async function createCulture(formData: FormData) {
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const color = formData.get("color") as string;
-    const azgaarId = formData.get("azgaarId") ? parseInt(formData.get("azgaarId") as string) : null;
+    const typeId = formData.get("typeId") as string;
+    const cellCount = formData.get("cellCount") ? parseInt(formData.get("cellCount") as string) : null;
+    const expansionFactor = formData.get("expansionFactor") ? parseFloat(formData.get("expansionFactor") as string) : null;
+    const areaKm2 = formData.get("areaKm2") ? parseFloat(formData.get("areaKm2") as string) : null;
+    const population = formData.get("population") ? parseInt(formData.get("population") as string) : null;
 
     const { error } = await supabaseAdmin
         .from("Culture")
@@ -33,7 +37,11 @@ export async function createCulture(formData: FormData) {
             name,
             description: description || null,
             color,
-            azgaarId
+            typeId: typeId || null,
+            cellCount,
+            expansionFactor,
+            areaKm2,
+            population
         });
 
     if (error) {
@@ -52,7 +60,11 @@ export async function updateCulture(formData: FormData) {
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const color = formData.get("color") as string;
-    const azgaarId = formData.get("azgaarId") ? parseInt(formData.get("azgaarId") as string) : null;
+    const typeId = formData.get("typeId") as string;
+    const cellCount = formData.get("cellCount") ? parseInt(formData.get("cellCount") as string) : null;
+    const expansionFactor = formData.get("expansionFactor") ? parseFloat(formData.get("expansionFactor") as string) : null;
+    const areaKm2 = formData.get("areaKm2") ? parseFloat(formData.get("areaKm2") as string) : null;
+    const population = formData.get("population") ? parseInt(formData.get("population") as string) : null;
 
     const { error } = await supabaseAdmin
         .from("Culture")
@@ -60,7 +72,11 @@ export async function updateCulture(formData: FormData) {
             name,
             description: description || null,
             color,
-            azgaarId
+            typeId: typeId || null,
+            cellCount,
+            expansionFactor,
+            areaKm2,
+            population
         })
         .eq("id", id);
 
@@ -178,6 +194,7 @@ export async function updateCountry(formData: FormData) {
     const areaKm2 = parseFloat(formData.get("areaKm2") as string);
     const population = parseInt(formData.get("population") as string);
     const emblem = formData.get("emblem") as string;
+    const capitalId = formData.get("capitalId") as string;
 
     const updateData: any = {
         name,
@@ -192,6 +209,35 @@ export async function updateCountry(formData: FormData) {
 
     if (emblem) {
         updateData.emblem = emblem;
+    }
+
+    // Gestion du changement de capitale
+    if (capitalId) {
+        // Récupérer l'ancienne capitale
+        const { data: currentCountry } = await supabaseAdmin
+            .from("Country")
+            .select("capitalId")
+            .eq("id", id)
+            .single();
+
+        if (currentCountry && currentCountry.capitalId !== capitalId) {
+            // 1. Enlever le statut de l'ancienne capitale
+            if (currentCountry.capitalId) {
+                await supabaseAdmin
+                    .from("City")
+                    .update({ isCapital: false, type: 'Ville' })
+                    .eq("id", currentCountry.capitalId);
+            }
+
+            // 2. Mettre le statut à la nouvelle capitale
+            await supabaseAdmin
+                .from("City")
+                .update({ isCapital: true, type: 'Capitale' })
+                .eq("id", capitalId);
+
+            // 3. Mettre à jour le champ capitalId du pays
+            updateData.capitalId = capitalId;
+        }
     }
 
     const { error } = await supabaseAdmin
@@ -216,7 +262,9 @@ export async function createProvince(formData: FormData) {
     const name = formData.get("name") as string;
     const countryId = formData.get("countryId") as string;
     const color = formData.get("color") as string;
-    const azgaarId = formData.get("azgaarId") ? parseInt(formData.get("azgaarId") as string) : null;
+    const emblem = formData.get("emblem") as string;
+    const areaKm2 = formData.get("areaKm2") ? parseFloat(formData.get("areaKm2") as string) : null;
+    const population = formData.get("population") ? parseInt(formData.get("population") as string) : null;
 
     const { error } = await supabaseAdmin
         .from("Province")
@@ -225,7 +273,9 @@ export async function createProvince(formData: FormData) {
             name,
             countryId,
             color,
-            azgaarId
+            emblem: emblem || null,
+            areaKm2,
+            population
         });
 
     if (error) {
@@ -244,7 +294,9 @@ export async function updateProvince(formData: FormData) {
     const name = formData.get("name") as string;
     const countryId = formData.get("countryId") as string;
     const color = formData.get("color") as string;
-    const azgaarId = formData.get("azgaarId") ? parseInt(formData.get("azgaarId") as string) : null;
+    const emblem = formData.get("emblem") as string;
+    const areaKm2 = formData.get("areaKm2") ? parseFloat(formData.get("areaKm2") as string) : null;
+    const population = formData.get("population") ? parseInt(formData.get("population") as string) : null;
 
     const { error } = await supabaseAdmin
         .from("Province")
@@ -252,7 +304,9 @@ export async function updateProvince(formData: FormData) {
             name,
             countryId,
             color,
-            azgaarId
+            emblem: emblem || null,
+            areaKm2,
+            population
         })
         .eq("id", id);
 
@@ -274,8 +328,14 @@ export async function createCity(formData: FormData) {
     const countryId = formData.get("countryId") as string;
     const provinceId = formData.get("provinceId") as string; // Required now
     const population = formData.get("population") ? parseInt(formData.get("population") as string) : null;
-    const type = formData.get("type") as string || null;
     const isCapital = formData.get("isCapital") === "on";
+
+    const isPort = formData.get("isPort") === "on";
+    const isWalled = formData.get("isWalled") === "on";
+    const hasCitadel = formData.get("hasCitadel") === "on";
+    const hasMarketplace = formData.get("hasMarketplace") === "on";
+    const hasReligiousCenter = formData.get("hasReligiousCenter") === "on";
+    const hasShanty = formData.get("hasShanty") === "on";
 
     if (!provinceId) {
         throw new Error("La province est obligatoire pour créer une ville.");
@@ -291,8 +351,13 @@ export async function createCity(formData: FormData) {
             countryId,
             provinceId,
             population,
-            type,
-            isCapital
+            isCapital,
+            isPort,
+            isWalled,
+            hasCitadel,
+            hasMarketplace,
+            hasReligiousCenter,
+            hasShanty
         });
 
     if (error) {
@@ -325,8 +390,14 @@ export async function updateCity(formData: FormData) {
     const countryId = formData.get("countryId") as string;
     const provinceId = formData.get("provinceId") as string;
     const population = formData.get("population") ? parseInt(formData.get("population") as string) : null;
-    const type = formData.get("type") as string || null;
     const isCapital = formData.get("isCapital") === "on";
+
+    const isPort = formData.get("isPort") === "on";
+    const isWalled = formData.get("isWalled") === "on";
+    const hasCitadel = formData.get("hasCitadel") === "on";
+    const hasMarketplace = formData.get("hasMarketplace") === "on";
+    const hasReligiousCenter = formData.get("hasReligiousCenter") === "on";
+    const hasShanty = formData.get("hasShanty") === "on";
 
     if (!provinceId) {
         throw new Error("La province est obligatoire.");
@@ -339,8 +410,13 @@ export async function updateCity(formData: FormData) {
             countryId,
             provinceId,
             population,
-            type,
-            isCapital
+            isCapital,
+            isPort,
+            isWalled,
+            hasCitadel,
+            hasMarketplace,
+            hasReligiousCenter,
+            hasShanty
         })
         .eq("id", id);
 
@@ -362,5 +438,86 @@ export async function updateCity(formData: FormData) {
     }
 
     revalidatePath("/dashboard/admin/cities/create");
+    return { success: true };
+}
+
+// --- Actions Religion ---
+
+export async function createReligion(formData: FormData) {
+    await checkAdmin();
+
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const color = formData.get("color") as string;
+    const typeId = formData.get("typeId") as string;
+    const formId = formData.get("formId") as string;
+    const deityName = formData.get("deityName") as string;
+    const potential = formData.get("potential") as string;
+    const areaKm2 = formData.get("areaKm2") ? parseFloat(formData.get("areaKm2") as string) : null;
+    const followers = formData.get("followers") ? parseInt(formData.get("followers") as string) : null;
+    const expansionFactor = formData.get("expansionFactor") ? parseFloat(formData.get("expansionFactor") as string) : null;
+
+    const { error } = await supabaseAdmin
+        .from("Religion")
+        .insert({
+            id: randomUUID(),
+            name,
+            description: description || null,
+            color,
+            typeId: typeId || null,
+            formId: formId || null,
+            deityName: deityName || null,
+            potential: potential || null,
+            areaKm2,
+            followers,
+            expansionFactor
+        });
+
+    if (error) {
+        console.error("Erreur createReligion:", error);
+        throw new Error("Erreur lors de la création de la religion: " + error.message);
+    }
+
+    revalidatePath("/dashboard/admin/religions/create");
+    return { success: true };
+}
+
+export async function updateReligion(formData: FormData) {
+    await checkAdmin();
+
+    const id = formData.get("id") as string;
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const color = formData.get("color") as string;
+    const typeId = formData.get("typeId") as string;
+    const formId = formData.get("formId") as string;
+    const deityName = formData.get("deityName") as string;
+    const potential = formData.get("potential") as string;
+    const areaKm2 = formData.get("areaKm2") ? parseFloat(formData.get("areaKm2") as string) : null;
+    const followers = formData.get("followers") ? parseInt(formData.get("followers") as string) : null;
+    const expansionFactor = formData.get("expansionFactor") ? parseFloat(formData.get("expansionFactor") as string) : null;
+
+    const { error } = await supabaseAdmin
+        .from("Religion")
+        .update({
+            name,
+            description: description || null,
+            color,
+            typeId: typeId || null,
+            formId: formId || null,
+            deityName: deityName || null,
+            potential: potential || null,
+            areaKm2,
+            followers,
+            expansionFactor
+        })
+        .eq("id", id);
+
+    if (error) {
+        console.error("Erreur updateReligion:", error);
+        throw new Error("Erreur lors de la modification de la religion: " + error.message);
+    }
+
+    revalidatePath("/dashboard/admin/religions/create");
     return { success: true };
 }

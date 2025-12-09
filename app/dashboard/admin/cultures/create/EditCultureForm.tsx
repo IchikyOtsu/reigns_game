@@ -6,10 +6,11 @@ import { updateCulture } from "../../actions";
 
 interface Props {
     culture: any;
+    cultureTypes: any[];
     onSuccess: () => void;
 }
 
-export default function EditCultureForm({ culture, onSuccess }: Props) {
+export default function EditCultureForm({ culture, cultureTypes, onSuccess }: Props) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -70,13 +71,42 @@ export default function EditCultureForm({ culture, onSuccess }: Props) {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Description (Optionnel)</label>
-                    <textarea name="description" defaultValue={culture.description || ""} rows={3} className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"></textarea>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Type (Optionnel)</label>
+                    <select name="typeId" defaultValue={culture.typeId || ""} className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        <option value="">Sélectionner un type</option>
+                        {cultureTypes.map((type) => (
+                            <option key={type.id} value={type.id}>
+                                {type.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Nombre de cellules (Optionnel)</label>
+                        <input name="cellCount" defaultValue={culture.cellCount || ""} type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Facteur d'expansion (Optionnel)</label>
+                        <input name="expansionFactor" defaultValue={culture.expansionFactor || ""} type="number" step="0.01" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Surface (km²) (Optionnel)</label>
+                        <input name="areaKm2" defaultValue={culture.areaKm2 || ""} type="number" step="0.01" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Population (Optionnel)</label>
+                        <input name="population" defaultValue={culture.population || ""} type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                    </div>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">ID Azgaar (Optionnel)</label>
-                    <input name="azgaarId" defaultValue={culture.azgaarId || ""} type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Description (Optionnel)</label>
+                    <textarea name="description" defaultValue={culture.description || ""} rows={3} className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"></textarea>
                 </div>
             </div>
 

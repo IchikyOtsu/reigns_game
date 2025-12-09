@@ -16,6 +16,12 @@ export default async function CreateCulturePage() {
     // Fetch existing cultures
     const { data: cultures } = await supabaseAdmin
         .from('Culture')
+        .select('*, type:CultureType(id, name)')
+        .order('name');
+
+    // Fetch culture types
+    const { data: cultureTypes } = await supabaseAdmin
+        .from('CultureType')
         .select('*')
         .order('name');
 
@@ -27,10 +33,10 @@ export default async function CreateCulturePage() {
             </header>
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-2xl">
-                <CreateCultureForm />
+                <CreateCultureForm cultureTypes={cultureTypes || []} />
             </div>
 
-            <CultureList cultures={cultures || []} />
+            <CultureList cultures={cultures || []} cultureTypes={cultureTypes || []} />
         </div>
     );
 }

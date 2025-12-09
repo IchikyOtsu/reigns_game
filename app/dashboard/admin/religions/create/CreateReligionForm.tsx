@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createCulture } from "../../actions";
+import { createReligion } from "../../actions";
 
 interface Props {
-    cultureTypes: any[];
+    religionTypes: any[];
+    religionForms: any[];
 }
 
-export default function CreateCultureForm({ cultureTypes }: Props) {
+export default function CreateReligionForm({ religionTypes, religionForms }: Props) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -20,16 +21,14 @@ export default function CreateCultureForm({ cultureTypes }: Props) {
         setError(null);
 
         const formData = new FormData(e.currentTarget);
-        // On ajoute la couleur sélectionnée manuellement au FormData
         formData.set('color', selectedColor);
 
         try {
-            await createCulture(formData);
-
-            // On reste sur la page et on rafraîchit la liste
+            await createReligion(formData);
+            // Reset form
+            (e.target as HTMLFormElement).reset();
+            setSelectedColor("#000000");
             router.refresh();
-            // Reset form logic could be added here if needed, but native form reset is tricky with controlled inputs
-
         } catch (err: any) {
             console.error("Erreur lors de la création:", err);
             setError(err.message || "Une erreur est survenue.");
@@ -46,9 +45,9 @@ export default function CreateCultureForm({ cultureTypes }: Props) {
                 </div>
             )}
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Nom de la Culture</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Nom de la Religion</label>
                     <input required name="name" type="text" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
                 </div>
 
@@ -72,40 +71,56 @@ export default function CreateCultureForm({ cultureTypes }: Props) {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Type (Optionnel)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Type</label>
                     <select name="typeId" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
                         <option value="">Sélectionner un type</option>
-                        {cultureTypes.map((type) => (
-                            <option key={type.id} value={type.id}>
-                                {type.name}
-                            </option>
+                        {religionTypes.map((type) => (
+                            <option key={type.id} value={type.id}>{type.name}</option>
                         ))}
                     </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Nombre de cellules (Optionnel)</label>
-                        <input name="cellCount" type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Facteur d'expansion (Optionnel)</label>
-                        <input name="expansionFactor" type="number" step="0.01" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Surface (km²) (Optionnel)</label>
-                        <input name="areaKm2" type="number" step="0.01" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Population (Optionnel)</label>
-                        <input name="population" type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                    </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Forme</label>
+                    <select name="formId" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        <option value="">Sélectionner une forme</option>
+                        {religionForms.map((form) => (
+                            <option key={form.id} value={form.id}>{form.name}</option>
+                        ))}
+                    </select>
                 </div>
 
                 <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Divinité Suprême</label>
+                    <input name="deityName" type="text" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Potentiel</label>
+                    <select name="potential" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        <option value="">Sélectionner un potentiel</option>
+                        <option value="Global">Global</option>
+                        <option value="Culture">Culture</option>
+                        <option value="State">State</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Surface (km²)</label>
+                    <input name="areaKm2" type="number" step="0.01" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Nombre de croyants</label>
+                    <input name="followers" type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Facteur d'expansion</label>
+                    <input name="expansionFactor" type="number" step="0.01" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                </div>
+
+                <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-1">Description (Optionnel)</label>
                     <textarea name="description" rows={3} className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"></textarea>
                 </div>
@@ -117,7 +132,7 @@ export default function CreateCultureForm({ cultureTypes }: Props) {
                     disabled={loading}
                     className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-md font-medium transition-colors disabled:opacity-50"
                 >
-                    {loading ? "Création..." : "Créer la Culture"}
+                    {loading ? "Création..." : "Créer la Religion"}
                 </button>
             </div>
         </form>

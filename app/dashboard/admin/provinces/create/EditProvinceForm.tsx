@@ -62,8 +62,18 @@ export default function EditProvinceForm({ province, countries, onSuccess }: Pro
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">ID Azgaar (Optionnel)</label>
-                    <input name="azgaarId" defaultValue={province.azgaarId || ""} type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Emblème (URL ou Description)</label>
+                    <input name="emblem" defaultValue={province.emblem || ""} type="text" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Superficie (km²)</label>
+                    <input name="areaKm2" defaultValue={province.areaKm2 || ""} type="number" step="0.01" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Population</label>
+                    <input name="population" defaultValue={province.population || ""} type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
                 </div>
 
                 <div>

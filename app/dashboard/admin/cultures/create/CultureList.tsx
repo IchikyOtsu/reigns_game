@@ -6,9 +6,10 @@ import EditCultureForm from "./EditCultureForm";
 
 interface Props {
     cultures: any[];
+    cultureTypes: any[];
 }
 
-export default function CultureList({ cultures }: Props) {
+export default function CultureList({ cultures, cultureTypes }: Props) {
     const [selectedCulture, setSelectedCulture] = useState<any | null>(null);
 
     return (
@@ -24,8 +25,9 @@ export default function CultureList({ cultures }: Props) {
                             <tr>
                                 <th className="px-6 py-4">Nom</th>
                                 <th className="px-6 py-4">Couleur</th>
+                                <th className="px-6 py-4">Type</th>
+                                <th className="px-6 py-4">Population</th>
                                 <th className="px-6 py-4">Description</th>
-                                <th className="px-6 py-4">ID Azgaar</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200">
@@ -44,15 +46,16 @@ export default function CultureList({ cultures }: Props) {
                                             </div>
                                         )}
                                     </td>
+                                    <td className="px-6 py-4">{culture.type?.name || "-"}</td>
+                                    <td className="px-6 py-4">{culture.population?.toLocaleString() || "-"}</td>
                                     <td className="px-6 py-4 max-w-xs truncate" title={culture.description || ""}>
                                         {culture.description || "-"}
                                     </td>
-                                    <td className="px-6 py-4">{culture.azgaarId || "-"}</td>
                                 </tr>
                             ))}
                             {(!cultures || cultures.length === 0) && (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                                    <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
                                         Aucune culture trouvée.
                                     </td>
                                 </tr>
@@ -70,6 +73,7 @@ export default function CultureList({ cultures }: Props) {
                 {selectedCulture && (
                     <EditCultureForm
                         culture={selectedCulture}
+                        cultureTypes={cultureTypes}
                         onSuccess={() => setSelectedCulture(null)}
                     />
                 )}

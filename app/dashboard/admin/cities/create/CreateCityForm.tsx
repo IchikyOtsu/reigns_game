@@ -115,19 +115,35 @@ export default function CreateCityForm({ countries, provinces }: Props) {
                     <input name="population" type="number" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
                 </div>
 
-                {/* Type */}
-                <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Type (ex: Port, Bourg...)</label>
-                    <input name="type" type="text" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
-                </div>
-
-                {/* Capitale */}
-                <div className="md:col-span-2">
+                {/* Features */}
+                <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
                     <div className="flex items-center">
                         <input id="isCapital" name="isCapital" type="checkbox" className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 rounded" />
-                        <label htmlFor="isCapital" className="ml-2 block text-sm text-slate-900">
-                            Est une capitale
-                        </label>
+                        <label htmlFor="isCapital" className="ml-2 block text-sm text-slate-900">Capitale</label>
+                    </div>
+                    <div className="flex items-center">
+                        <input id="isPort" name="isPort" type="checkbox" className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 rounded" />
+                        <label htmlFor="isPort" className="ml-2 block text-sm text-slate-900">Port</label>
+                    </div>
+                    <div className="flex items-center">
+                        <input id="isWalled" name="isWalled" type="checkbox" className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 rounded" />
+                        <label htmlFor="isWalled" className="ml-2 block text-sm text-slate-900">Fortifiée</label>
+                    </div>
+                    <div className="flex items-center">
+                        <input id="hasCitadel" name="hasCitadel" type="checkbox" className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 rounded" />
+                        <label htmlFor="hasCitadel" className="ml-2 block text-sm text-slate-900">Citadelle</label>
+                    </div>
+                    <div className="flex items-center">
+                        <input id="hasMarketplace" name="hasMarketplace" type="checkbox" className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 rounded" />
+                        <label htmlFor="hasMarketplace" className="ml-2 block text-sm text-slate-900">Marché</label>
+                    </div>
+                    <div className="flex items-center">
+                        <input id="hasReligiousCenter" name="hasReligiousCenter" type="checkbox" className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 rounded" />
+                        <label htmlFor="hasReligiousCenter" className="ml-2 block text-sm text-slate-900">Centre Religieux</label>
+                    </div>
+                    <div className="flex items-center">
+                        <input id="hasShanty" name="hasShanty" type="checkbox" className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 rounded" />
+                        <label htmlFor="hasShanty" className="ml-2 block text-sm text-slate-900">Bidonville</label>
                     </div>
                 </div>
             </div>

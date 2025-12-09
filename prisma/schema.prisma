@@ -60,31 +60,71 @@ model Regime {
 }
 
 model Religion {
-  id        String    @id @default(uuid())
-  azgaarId  Int?
-  name      String    @unique
-  color     String?
-  description String?
+  id              String        @id @default(uuid())
+  name            String        @unique
   
-  countries Country[]
+  typeId          String?
+  type            ReligionType? @relation(fields: [typeId], references: [id])
+  
+  formId          String?
+  form            ReligionForm? @relation(fields: [formId], references: [id])
+  
+  deityName       String?
+  areaKm2         Float?
+  followers       Int?
+  potential       String?       // "Global", "Culture", "State"
+  expansionFactor Float?
+  
+  color           String?
+  description     String?
+
+  countries       Country[]
+}
+
+model ReligionType {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  religions Religion[]
+}
+
+model ReligionForm {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  religions Religion[]
 }
 
 model Culture {
-  id        String    @id @default(uuid())
-  azgaarId  Int?
-  name      String    @unique
-  color     String?
-  description String?
+  id              String       @id @default(uuid())
+  name            String       @unique
+  
+  typeId          String?
+  type            CultureType? @relation(fields: [typeId], references: [id])
+
+  cellCount       Int?
+  expansionFactor Float?
+  areaKm2         Float?
+  population      Int?
+  color           String?
+  description     String?
 
   countries Country[]
+}
+
+model CultureType {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  
+  cultures  Culture[]
 }
 
 // --- Géographie ---
 model Province {
   id        String   @id @default(uuid())
-  azgaarId  Int?
   name      String
   color     String?
+  emblem    String?
+  areaKm2   Float?
+  population Int?
   
   countryId String
   country   Country  @relation(fields: [countryId], references: [id])
@@ -96,8 +136,14 @@ model City {
   id         String   @id @default(uuid())
   name       String
   population Int?
-  type       String?  // Ex: Capital, Town, Port...
   isCapital  Boolean  @default(false)
+  
+  isPort            Boolean @default(false)
+  isWalled          Boolean @default(false)
+  hasCitadel        Boolean @default(false)
+  hasMarketplace    Boolean @default(false)
+  hasReligiousCenter Boolean @default(false)
+  hasShanty         Boolean @default(false)
 
   countryId  String
   country    Country  @relation("CountryCities", fields: [countryId], references: [id])
