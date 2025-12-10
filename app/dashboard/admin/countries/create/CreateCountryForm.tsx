@@ -186,6 +186,16 @@ export default function CreateCountryForm({ regimes, cultures, religions, player
                             <label className="block text-sm font-medium text-slate-700 mb-1">Superficie (km²)</label>
                             <input required name="areaKm2" type="number" min="0" step="0.1" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Stabilité de base</label>
+                            <input name="stabilityBase" type="number" min="0" max="1" step="0.01" defaultValue={0.5} className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                            <p className="text-xs text-slate-500 mt-1">Format décimal: 0.15 = 15%</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Lassitude</label>
+                            <input name="fatigue" type="number" min="0" max="1" step="0.01" defaultValue={0.0} className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                            <p className="text-xs text-slate-500 mt-1">Format décimal: 0.10 = 10%</p>
+                        </div>
                     </div>
                 </div>
             </div>

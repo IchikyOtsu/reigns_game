@@ -173,6 +173,19 @@ export default function EditCountryForm({ country, cultures, regimes, cities, on
                         </div>
                         <p className="text-xs text-slate-500 mt-1">Laisser vide pour conserver l'image actuelle.</p>
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Stabilité de base</label>
+                            <input name="stabilityBase" defaultValue={country.stabilityBase ?? 0.5} type="number" min="0" max="1" step="0.01" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                            <p className="text-xs text-slate-500 mt-1">Format décimal: 0.15 = 15%</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Lassitude</label>
+                            <input name="fatigue" defaultValue={country.fatigue ?? 0.0} type="number" min="0" max="1" step="0.01" className="w-full rounded-md border-slate-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />
+                            <p className="text-xs text-slate-500 mt-1">Format décimal: 0.10 = 10%</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 

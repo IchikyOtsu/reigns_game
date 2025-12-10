@@ -100,7 +100,38 @@ export default async function CountryPage() {
                                 {countryData.culture?.name} • {countryData.religion?.name || 'Aucune'}
                             </p>
                         </div>
+                        <div>
+                            <p className="text-sm text-slate-500 mb-1">Stabilité de base</p>
+                            <p className="font-semibold text-slate-900">{Math.round(((countryData.stabilityBase ?? 0.5) * 100))}%</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-slate-500 mb-1">Lassitude</p>
+                            <p className="font-semibold text-slate-900">{Math.round(((countryData.fatigue ?? 0.0) * 100))}%</p>
+                        </div>
                     </div>
+                            {/* Stabilité actuelle */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                <div className="p-6 border-b border-slate-200 flex items-center gap-3">
+                                    <span className="text-2xl">🛡️</span>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-slate-800">Stabilité</h2> </div>
+                                </div>
+                                <div className="p-8 flex items-center justify-center">
+                                    <div className="w-full max-w-md">
+                                        <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-4 bg-amber-600 rounded-full transition-all"
+                                                style={{ width: `${Math.round(((countryData.stabilityBase ?? 0.5) * 100))}%` }}
+                                            />
+                                        </div>
+                                        <div className="mt-3 flex justify-between text-sm text-slate-600">
+                                            <span>0%</span>
+                                            <span className="font-semibold text-slate-900">{Math.round(((countryData.stabilityBase ?? 0.5) * 100))}%</span>
+                                            <span>100%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                 </div>
             </div>
 

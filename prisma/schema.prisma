@@ -39,6 +39,10 @@ model Country {
   population  Int
   treasury    Int      @default(0)
   
+  // Nouvelles statistiques (Float8: 0.15 = 15%)
+  stabilityBase Float  @default(0.5)
+  fatigue       Float  @default(0.0)
+  
   playerId    String   @unique
   player      Player   @relation(fields: [playerId], references: [id])
   
@@ -52,6 +56,30 @@ model Country {
 
   provinces   Province[]
   cities      City[]    @relation("CountryCities")
+  events      Event[]
+}
+
+model Event {
+  id            String     @id @default(uuid())
+  name          String
+  description   String?
+  modifierValue Float      // Pourcentage (ex: 10.5 pour +10.5%, -5.0 pour -5%)
+  
+  countryId     String
+  country       Country    @relation(fields: [countryId], references: [id])
+  
+  bonusTypeId   String
+  bonusType     BonusType  @relation(fields: [bonusTypeId], references: [id])
+  
+  createdAt     DateTime   @default(now())
+}
+
+model BonusType {
+  id          String   @id @default(uuid())
+  name        String   @unique // ex: "Economy", "Military", "Stability"
+  description String?
+  
+  events      Event[]
 }
 
 model Army {

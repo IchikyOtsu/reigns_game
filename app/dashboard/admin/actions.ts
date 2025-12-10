@@ -105,6 +105,8 @@ export async function createCountry(formData: FormData) {
     const areaKm2 = parseFloat(formData.get("areaKm2") as string);
     const population = parseInt(formData.get("population") as string);
     const emblem = formData.get("emblem") as string; // URL de l'image déjà uploadée
+    const stabilityBase = formData.get("stabilityBase") ? parseFloat(formData.get("stabilityBase") as string) : 0.5;
+    const fatigue = formData.get("fatigue") ? parseFloat(formData.get("fatigue") as string) : 0.0;
 
     // 1. Créer le Pays
     const { data: country, error: countryError } = await supabaseAdmin
@@ -119,7 +121,9 @@ export async function createCountry(formData: FormData) {
             color,
             areaKm2,
             population,
-            emblem: emblem || null
+            emblem: emblem || null,
+            stabilityBase,
+            fatigue
         })
         .select()
         .single();
@@ -195,6 +199,8 @@ export async function updateCountry(formData: FormData) {
     const population = parseInt(formData.get("population") as string);
     const emblem = formData.get("emblem") as string;
     const capitalId = formData.get("capitalId") as string;
+    const stabilityBase = formData.get("stabilityBase") ? parseFloat(formData.get("stabilityBase") as string) : undefined;
+    const fatigue = formData.get("fatigue") ? parseFloat(formData.get("fatigue") as string) : undefined;
 
     const updateData: any = {
         name,
@@ -206,6 +212,13 @@ export async function updateCountry(formData: FormData) {
         areaKm2,
         population
     };
+
+    if (typeof stabilityBase !== 'undefined') {
+        updateData.stabilityBase = stabilityBase;
+    }
+    if (typeof fatigue !== 'undefined') {
+        updateData.fatigue = fatigue;
+    }
 
     if (emblem) {
         updateData.emblem = emblem;
