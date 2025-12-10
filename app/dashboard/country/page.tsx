@@ -24,7 +24,16 @@ export default async function CountryPage() {
                 religion:Religion(name),
                 culture:Culture(name),
                 provinces:Province(id, name, population, areaKm2, emblem),
-                cities:City!City_countryId_fkey(id, name, population, isCapital, isPort, isWalled, hasCitadel, hasMarketplace, hasReligiousCenter, hasShanty)
+                cities:City!City_countryId_fkey(id, name, population, isCapital, isPort, isWalled, hasCitadel, hasMarketplace, hasReligiousCenter, hasShanty),
+                events:Event(
+                    id,
+                    name,
+                    isActive,
+                    bonuses:EventBonus(
+                        modifierValue,
+                        bonusType:BonusType(name)
+                    )
+                )
             )
         `)
         .eq('discordId', discordId)
@@ -39,6 +48,23 @@ export default async function CountryPage() {
 
     // Gestion du cas où country est un tableau (bug potentiel PostgREST)
     const countryData = Array.isArray(country) ? country[0] : country;
+
+    // Calcul des bonus d'événements (Stabilité)
+    let stabilityBonus = 0;
+    if (countryData?.events) {
+        countryData.events.forEach((event: any) => {
+            if (event.isActive) {
+                event.bonuses?.forEach((bonus: any) => {
+                    if (bonus.bonusType?.name === 'GLOBAL_STABILITY') {
+                        stabilityBonus += bonus.modifierValue;
+                    }
+                });
+            }
+        });
+    }
+    
+    const baseStability = countryData?.stabilityBase ?? 0.5;
+    const totalStability = Math.max(0, Math.min(1, baseStability + stabilityBonus));
 
     if (!countryData) {
         return (
@@ -101,8 +127,15 @@ export default async function CountryPage() {
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm text-slate-500 mb-1">Stabilité de base</p>
-                            <p className="font-semibold text-slate-900">{Math.round(((countryData.stabilityBase ?? 0.5) * 100))}%</p>
+                            <p className="text-sm text-slate-500 mb-1">Stabilité Totale</p>
+                            <div className="flex items-center gap-2">
+                                <p className="font-semibold text-slate-900">{Math.round(totalStability * 100)}%</p>
+                                {stabilityBonus !== 0 && (
+                                    <span className={`text-xs ${stabilityBonus > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                        ({stabilityBonus > 0 ? '+' : ''}{Math.round(stabilityBonus * 100)}%)
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <div>
                             <p className="text-sm text-slate-500 mb-1">Lassitude</p>
@@ -118,15 +151,23 @@ export default async function CountryPage() {
                                 </div>
                                 <div className="p-8 flex items-center justify-center">
                                     <div className="w-full max-w-md">
-                                        <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+                                        <div className="h-4 bg-slate-100 rounded-full overflow-hidden relative">
+                                            {/* Base Stability Marker (Optional, maybe just show total) */}
                                             <div
-                                                className="h-4 bg-amber-600 rounded-full transition-all"
-                                                style={{ width: `${Math.round(((countryData.stabilityBase ?? 0.5) * 100))}%` }}
+                                                className={`h-4 rounded-full transition-all ${totalStability >= 0.5 ? 'bg-emerald-500' : 'bg-amber-600'}`}
+                                                style={{ width: `${Math.round(totalStability * 100)}%` }}
                                             />
                                         </div>
                                         <div className="mt-3 flex justify-between text-sm text-slate-600">
                                             <span>0%</span>
-                                            <span className="font-semibold text-slate-900">{Math.round(((countryData.stabilityBase ?? 0.5) * 100))}%</span>
+                                            <div className="text-center">
+                                                <span className="font-semibold text-slate-900">{Math.round(totalStability * 100)}%</span>
+                                                {stabilityBonus !== 0 && (
+                                                    <span className={`ml-1 text-xs ${stabilityBonus > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                                        (Base: {Math.round(baseStability * 100)}%)
+                                                    </span>
+                                                )}
+                                            </div>
                                             <span>100%</span>
                                         </div>
                                     </div>

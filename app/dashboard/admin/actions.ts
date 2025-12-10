@@ -269,6 +269,121 @@ export async function updateCountry(formData: FormData) {
 
 // --- Actions Province ---
 
+// --- Actions Événement ---
+export async function createEvent(formData: FormData) {
+    await checkAdmin();
+
+    const name = formData.get("name") as string;
+    const description = (formData.get("description") as string) || null;
+    const countryId = formData.get("countryId") as string;
+    const bonusesJson = formData.get("bonuses") as string;
+    const activeFor = formData.get("activeFor") ? parseInt(formData.get("activeFor") as string) : 1;
+
+    if (!name || !countryId) {
+        throw new Error("Nom et pays sont requis.");
+    }
+
+    const eventId = randomUUID();
+
+    const { error: eventError } = await supabaseAdmin
+        .from("Event")
+        .insert({
+            id: eventId,
+            name,
+            description,
+            countryId,
+            isActive: true,
+            activeFor
+        });
+
+    if (eventError) {
+        console.error("Erreur createEvent (Event):", eventError);
+        throw new Error("Erreur lors de la création de l'événement: " + eventError.message);
+    }
+
+    let bonuses: Array<{ bonusTypeId: string; modifierValue: number }> = [];
+    try {
+        bonuses = JSON.parse(bonusesJson || "[]");
+    } catch (e) {
+        console.error("Erreur parsing bonuses JSON:", e);
+    }
+
+    // Filter invalid rows
+    bonuses = bonuses.filter(b => b.bonusTypeId && typeof b.modifierValue === 'number');
+
+    for (const b of bonuses) {
+        const { error: ebError } = await supabaseAdmin
+            .from("EventBonus")
+            .insert({
+                id: randomUUID(),
+                eventId,
+                bonusTypeId: b.bonusTypeId,
+                modifierValue: b.modifierValue
+            });
+        if (ebError) {
+            console.error("Erreur createEvent (EventBonus):", ebError);
+            // continue to next, do not fail entire creation
+        }
+    }
+
+    revalidatePath("/dashboard/admin/events/create");
+    return { success: true };
+}
+
+export async function updateEvent(payload: { id: string; name?: string; description?: string; bonuses?: Array<{ bonusTypeName: string; modifierValue: number }>; isActive?: boolean; activeFor?: number }) {
+    await checkAdmin();
+
+    const { id, name, description, bonuses = [], isActive, activeFor } = payload;
+    if (!id) throw new Error("Id requis");
+
+    const updateData: any = {};
+    if (typeof name !== 'undefined') updateData.name = name;
+    if (typeof description !== 'undefined') updateData.description = description;
+
+    if (typeof isActive !== 'undefined') updateData.isActive = isActive;
+    if (typeof activeFor !== 'undefined') updateData.activeFor = activeFor;
+
+    if (Object.keys(updateData).length) {
+        const { error: updateEventError } = await supabaseAdmin
+            .from("Event")
+            .update(updateData)
+            .eq("id", id);
+        if (updateEventError) {
+            console.error("Erreur updateEvent (Event):", updateEventError);
+            throw new Error("Erreur mise à jour événement: " + updateEventError.message);
+        }
+    }
+
+    // Replace bonuses: delete existing, reinsert provided
+    const { error: delError } = await supabaseAdmin
+        .from("EventBonus")
+        .delete()
+        .eq("eventId", id);
+    if (delError) {
+        console.error("Erreur updateEvent (Delete bonuses):", delError);
+    }
+
+    // Resolve bonusTypeId from name
+    for (const b of bonuses) {
+        if (!b.bonusTypeName) continue;
+        const { data: bt } = await supabaseAdmin
+            .from("BonusType")
+            .select("id")
+            .eq("name", b.bonusTypeName)
+            .single();
+        if (!bt?.id) continue;
+        const { error: insError } = await supabaseAdmin
+            .from("EventBonus")
+            .insert({ id: randomUUID(), eventId: id, bonusTypeId: bt.id, modifierValue: b.modifierValue });
+        if (insError) {
+            console.error("Erreur updateEvent (Insert bonus)", insError);
+        }
+    }
+
+    revalidatePath("/dashboard/admin/events/create");
+    return { success: true };
+}
+
 export async function createProvince(formData: FormData) {
     await checkAdmin();
 

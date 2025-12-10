@@ -24,6 +24,15 @@ export default async function EconomyPage() {
                 treasury,
                 regime:Regime(
                     name
+                ),
+                events:Event(
+                    id,
+                    name,
+                    isActive,
+                    bonuses:EventBonus(
+                        modifierValue,
+                        bonusType:BonusType(name)
+                    )
                 )
             )
         `)
@@ -57,8 +66,23 @@ export default async function EconomyPage() {
         efficiency = 1 / (1 + Math.log10(population / POPULATION_THRESHOLD));
     }
 
+    // Calcul des bonus d'événements (Taxes)
+    let taxBonus = 0;
+    if (countryData.events) {
+        countryData.events.forEach((event: any) => {
+            if (event.isActive) {
+                event.bonuses?.forEach((bonus: any) => {
+                    if (bonus.bonusType?.name === 'ECO_TAX') {
+                        taxBonus += bonus.modifierValue;
+                    }
+                });
+            }
+        });
+    }
+
     const baseIncome = Math.floor(population / 100);
-    const finalIncome = Math.floor(baseIncome * efficiency);
+    const finalEfficiency = Math.max(0, efficiency + taxBonus);
+    const finalIncome = Math.floor(baseIncome * finalEfficiency);
 
     return (
         <div className="space-y-8">
@@ -91,7 +115,12 @@ export default async function EconomyPage() {
                     <div className="mt-2 flex items-center text-xs text-slate-500">
                         <span>Base: {baseIncome.toLocaleString()}</span>
                         <span className="mx-2">•</span>
-                        <span>Efficacité: {(efficiency * 100).toFixed(1)}%</span>
+                        <span>Efficacité: {(finalEfficiency * 100).toFixed(1)}%</span>
+                        {taxBonus !== 0 && (
+                            <span className={`ml-1 ${taxBonus > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                ({taxBonus > 0 ? '+' : ''}{(taxBonus * 100).toFixed(1)}%)
+                            </span>
+                        )}
                     </div>
                 </div>
 

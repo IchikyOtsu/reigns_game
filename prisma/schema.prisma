@@ -63,15 +63,15 @@ model Event {
   id            String     @id @default(uuid())
   name          String
   description   String?
-  modifierValue Float      // Pourcentage (ex: 10.5 pour +10.5%, -5.0 pour -5%)
   
   countryId     String
   country       Country    @relation(fields: [countryId], references: [id])
   
-  bonusTypeId   String
-  bonusType     BonusType  @relation(fields: [bonusTypeId], references: [id])
-  
   createdAt     DateTime   @default(now())
+  isActive      Boolean    @default(true)
+  activeFor     Int        @default(1)  // Nombre de tours où l'événement reste actif
+
+  bonuses       EventBonus[]
 }
 
 model BonusType {
@@ -79,7 +79,19 @@ model BonusType {
   name        String   @unique // ex: "Economy", "Military", "Stability"
   description String?
   
-  events      Event[]
+  eventBonuses EventBonus[]
+}
+
+model EventBonus {
+  id           String     @id @default(uuid())
+  eventId      String
+  bonusTypeId  String
+  modifierValue Float     // Float8: 0.15 = +15%
+
+  event        Event      @relation(fields: [eventId], references: [id])
+  bonusType    BonusType  @relation(fields: [bonusTypeId], references: [id])
+
+  @@unique([eventId, bonusTypeId])
 }
 
 model Army {

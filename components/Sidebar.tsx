@@ -205,6 +205,17 @@ export default function Sidebar() {
                             <span>🌿</span>
                             <span className="font-medium">Biomes & Ressources</span>
                         </Link>
+
+                        <Link
+                            href="/dashboard/admin/events/create"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/events/create')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>🎫</span>
+                            <span className="font-medium">Créer un Événement</span>
+                        </Link>
                     </>
                 )}
 
