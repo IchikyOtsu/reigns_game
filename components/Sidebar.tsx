@@ -99,6 +99,17 @@ export default function Sidebar() {
                 </Link>
 
                 <Link
+                    href="/dashboard/events"
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/events')
+                        ? 'bg-amber-600 text-white'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        }`}
+                >
+                    <span>⚡</span>
+                    <span className="font-medium">Événements</span>
+                </Link>
+
+                <Link
                     href="/dashboard/resources"
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/resources')
                         ? 'bg-amber-600 text-white'
