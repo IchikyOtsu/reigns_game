@@ -227,6 +227,28 @@ export default function Sidebar() {
                             <span>🎫</span>
                             <span className="font-medium">Créer un Événement</span>
                         </Link>
+
+                        <Link
+                            href="/dashboard/admin/goals"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/goals')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>🎯</span>
+                            <span className="font-medium">Icônes Objectifs</span>
+                        </Link>
+
+                        <Link
+                            href="/dashboard/admin/national-spirits/create"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive('/dashboard/admin/national-spirits/create')
+                                ? 'bg-red-600 text-white'
+                                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                }`}
+                        >
+                            <span>👻</span>
+                            <span className="font-medium">Créer Esprit National</span>
+                        </Link>
                     </>
                 )}
 

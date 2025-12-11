@@ -57,6 +57,7 @@ model Country {
   provinces   Province[]
   cities      City[]    @relation("CountryCities")
   events      Event[]
+  nationalSpirits NationalSpirit[]
 }
 
 model Event {
@@ -80,6 +81,7 @@ model BonusType {
   description String?
   
   eventBonuses EventBonus[]
+  nationalSpiritBonuses NationalSpiritBonus[]
 }
 
 model EventBonus {
@@ -92,6 +94,30 @@ model EventBonus {
   bonusType    BonusType  @relation(fields: [bonusTypeId], references: [id])
 
   @@unique([eventId, bonusTypeId])
+}
+
+model NationalSpirit {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  icon        String   // Nom du fichier image dans public/goals
+  
+  countryId   String
+  country     Country  @relation(fields: [countryId], references: [id])
+  
+  bonuses     NationalSpiritBonus[]
+}
+
+model NationalSpiritBonus {
+  id              String         @id @default(uuid())
+  nationalSpiritId String
+  bonusTypeId     String
+  modifierValue   Float
+
+  nationalSpirit  NationalSpirit @relation(fields: [nationalSpiritId], references: [id])
+  bonusType       BonusType      @relation(fields: [bonusTypeId], references: [id])
+
+  @@unique([nationalSpiritId, bonusTypeId])
 }
 
 model Army {

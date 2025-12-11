@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import NationalSpiritGrid from "./NationalSpiritGrid";
 
 export default async function CountryPage() {
     const session = await getServerSession(authOptions);
@@ -33,6 +34,16 @@ export default async function CountryPage() {
                         modifierValue,
                         bonusType:BonusType(name)
                     )
+                ),
+                nationalSpirits:NationalSpirit(
+                    id,
+                    name,
+                    description,
+                    icon,
+                    bonuses:NationalSpiritBonus(
+                        modifierValue,
+                        bonusType:BonusType(name)
+                    )
                 )
             )
         `)
@@ -49,8 +60,10 @@ export default async function CountryPage() {
     // Gestion du cas où country est un tableau (bug potentiel PostgREST)
     const countryData = Array.isArray(country) ? country[0] : country;
 
-    // Calcul des bonus d'événements (Stabilité)
+    // Calcul des bonus d'événements et esprits nationaux (Stabilité)
     let stabilityBonus = 0;
+    
+    // Events
     if (countryData?.events) {
         countryData.events.forEach((event: any) => {
             if (event.isActive) {
@@ -60,6 +73,17 @@ export default async function CountryPage() {
                     }
                 });
             }
+        });
+    }
+
+    // National Spirits
+    if (countryData?.nationalSpirits) {
+        countryData.nationalSpirits.forEach((spirit: any) => {
+            spirit.bonuses?.forEach((bonus: any) => {
+                if (bonus.bonusType?.name === 'GLOBAL_STABILITY') {
+                    stabilityBonus += bonus.modifierValue;
+                }
+            });
         });
     }
     
@@ -175,6 +199,9 @@ export default async function CountryPage() {
                             </div>
                 </div>
             </div>
+
+            {/* Esprits Nationaux */}
+            <NationalSpiritGrid spirits={countryData.nationalSpirits || []} />
 
             {/* Provinces */}
             <div>

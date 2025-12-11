@@ -34,6 +34,14 @@ export default async function ResourcesPage() {
                         modifierValue,
                         bonusType:BonusType(name)
                     )
+                ),
+                nationalSpirits:NationalSpirit(
+                    id,
+                    name,
+                    bonuses:NationalSpiritBonus(
+                        modifierValue,
+                        bonusType:BonusType(name)
+                    )
                 )
             )
         `)
@@ -102,6 +110,18 @@ export default async function ResourcesPage() {
                     }
                 });
             }
+        });
+    }
+
+    // Collecter les bonus des esprits nationaux
+    if (countryData.nationalSpirits) {
+        countryData.nationalSpirits.forEach((spirit: any) => {
+            spirit.bonuses?.forEach((bonus: any) => {
+                const name = bonus.bonusType?.name;
+                if (name) {
+                    activeBonuses[name] = (activeBonuses[name] || 0) + bonus.modifierValue;
+                }
+            });
         });
     }
 

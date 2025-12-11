@@ -33,6 +33,14 @@ export default async function EconomyPage() {
                         modifierValue,
                         bonusType:BonusType(name)
                     )
+                ),
+                nationalSpirits:NationalSpirit(
+                    id,
+                    name,
+                    bonuses:NationalSpiritBonus(
+                        modifierValue,
+                        bonusType:BonusType(name)
+                    )
                 )
             )
         `)
@@ -77,6 +85,17 @@ export default async function EconomyPage() {
                     }
                 });
             }
+        });
+    }
+
+    // Calcul des bonus des esprits nationaux (Taxes)
+    if (countryData.nationalSpirits) {
+        countryData.nationalSpirits.forEach((spirit: any) => {
+            spirit.bonuses?.forEach((bonus: any) => {
+                if (bonus.bonusType?.name === 'ECO_TAX') {
+                    taxBonus += bonus.modifierValue;
+                }
+            });
         });
     }
 

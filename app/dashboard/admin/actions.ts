@@ -384,6 +384,148 @@ export async function updateEvent(payload: { id: string; name?: string; descript
     return { success: true };
 }
 
+// --- Actions National Spirit ---
+
+export async function createNationalSpirit(data: {
+    name: string;
+    description: string;
+    countryId: string;
+    icon: string;
+    bonuses: { bonusTypeName: string; modifierValue: number }[];
+}) {
+    await checkAdmin();
+
+    // 1. Créer le National Spirit
+    const spiritId = randomUUID();
+    const { error: spiritError } = await supabaseAdmin
+        .from('NationalSpirit')
+        .insert({
+            id: spiritId,
+            name: data.name,
+            description: data.description,
+            countryId: data.countryId,
+            icon: data.icon
+        });
+
+    if (spiritError) {
+        console.error("Error creating spirit:", spiritError);
+        throw new Error("Erreur lors de la création de l'esprit national.");
+    }
+
+    // 2. Gérer les bonus
+    if (data.bonuses && data.bonuses.length > 0) {
+        // Récupérer les IDs des BonusType
+        const { data: bonusTypes, error: btError } = await supabaseAdmin
+            .from('BonusType')
+            .select('id, name')
+            .in('name', data.bonuses.map(b => b.bonusTypeName));
+
+        if (btError) throw new Error("Erreur lors de la récupération des types de bonus.");
+
+        const bonusInserts = data.bonuses.map(b => {
+            const bt = bonusTypes?.find((t: any) => t.name === b.bonusTypeName);
+            if (!bt) return null;
+            return {
+                id: randomUUID(),
+                nationalSpiritId: spiritId,
+                bonusTypeId: bt.id,
+                modifierValue: b.modifierValue
+            };
+        }).filter(Boolean);
+
+        if (bonusInserts.length > 0) {
+            const { error: bonusError } = await supabaseAdmin
+                .from('NationalSpiritBonus')
+                .insert(bonusInserts);
+            
+            if (bonusError) {
+                console.error("Error adding spirit bonuses:", bonusError);
+                // On ne rollback pas le spirit pour l'instant, mais c'est une amélioration possible
+                throw new Error("Esprit créé mais erreur lors de l'ajout des bonus.");
+            }
+        }
+    }
+
+    revalidatePath("/dashboard/admin/national-spirits/create");
+    return { success: true };
+}
+
+export async function updateNationalSpirit(data: {
+    id: string;
+    name: string;
+    description: string;
+    countryId: string;
+    icon: string;
+    bonuses: { bonusTypeName: string; modifierValue: number }[];
+}) {
+    await checkAdmin();
+
+    // 1. Update National Spirit basic info
+    const { error: spiritError } = await supabaseAdmin
+        .from('NationalSpirit')
+        .update({
+            name: data.name,
+            description: data.description,
+            countryId: data.countryId,
+            icon: data.icon
+        })
+        .eq('id', data.id);
+
+    if (spiritError) {
+        console.error("Error updating spirit:", spiritError);
+        throw new Error("Erreur lors de la modification de l'esprit national.");
+    }
+
+    // 2. Update bonuses (Delete all and recreate)
+    
+    // Delete existing bonuses
+    const { error: deleteError } = await supabaseAdmin
+        .from('NationalSpiritBonus')
+        .delete()
+        .eq('nationalSpiritId', data.id);
+
+    if (deleteError) {
+        console.error("Error deleting old bonuses:", deleteError);
+        throw new Error("Erreur lors de la suppression des anciens bonus.");
+    }
+
+    // Insert new bonuses
+    if (data.bonuses && data.bonuses.length > 0) {
+        // Fetch BonusType IDs
+        const { data: bonusTypes, error: btError } = await supabaseAdmin
+            .from('BonusType')
+            .select('id, name')
+            .in('name', data.bonuses.map(b => b.bonusTypeName));
+
+        if (btError) throw new Error("Erreur lors de la récupération des types de bonus.");
+
+        const bonusInserts = data.bonuses.map(b => {
+            const bt = bonusTypes?.find((t: any) => t.name === b.bonusTypeName);
+            if (!bt) return null;
+            return {
+                id: randomUUID(),
+                nationalSpiritId: data.id,
+                bonusTypeId: bt.id,
+                modifierValue: b.modifierValue
+            };
+        }).filter(Boolean);
+
+        if (bonusInserts.length > 0) {
+            const { error: bonusError } = await supabaseAdmin
+                .from('NationalSpiritBonus')
+                .insert(bonusInserts);
+            
+            if (bonusError) {
+                console.error("Error adding spirit bonuses:", bonusError);
+                throw new Error("Esprit modifié mais erreur lors de l'ajout des bonus.");
+            }
+        }
+    }
+
+    revalidatePath("/dashboard/admin/national-spirits/create");
+    return { success: true };
+}
+
 export async function createProvince(formData: FormData) {
     await checkAdmin();
 
