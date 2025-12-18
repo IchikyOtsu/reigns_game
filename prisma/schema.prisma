@@ -13,63 +13,252 @@ datasource db {
 // --- Utilisateurs (Joueurs) ---
 model Player {
   id            String   @id @default(uuid())
-  discordId     String   @unique // L'ID unique Discord (ex: 123456789)
-  discordPseudo String   // Le pseudo affiché
+  discordId     String   @unique
+  discordPseudo String
+  role          String   @default("USER") // "USER" ou "ADMIN"
   createdAt     DateTime @default(now())
   
-  // Relation : Un joueur possède un pays
   country       Country?
 }
 
 // --- Géopolitique ---
 model Country {
   id          String   @id @default(uuid())
+  azgaarId    Int?     // ID correspondant dans Azgaar
   name        String
-  capital     String
-  regime      String   // Ex: Monarchie, République...
-  areaKm2     Float    // Superficie
-  population  Int      // Population totale
+  emblem      String?  // URL de l'image (Supabase Storage)
   
-  // Relations
-  playerId    String   @unique // Clé étrangère vers le joueur
+  capitalId   String?  @unique
+  capital     City?    @relation("CountryCapital", fields: [capitalId], references: [id])
+  
+  regimeId    String
+  regime      Regime   @relation(fields: [regimeId], references: [id])
+  
+  color       String?  // Code couleur Hex (ex: #ff0000)
+  areaKm2     Float
+  population  Int
+  treasury    Int      @default(0)
+  
+  // Nouvelles statistiques (Float8: 0.15 = 15%)
+  stabilityBase Float  @default(0.5)
+  fatigue       Float  @default(0.0)
+  
+  playerId    String   @unique
   player      Player   @relation(fields: [playerId], references: [id])
   
   religionId  String?
   religion    Religion? @relation(fields: [religionId], references: [id])
   
-  cultureId   String?
-  culture     Culture? @relation(fields: [cultureId], references: [id])
+  cultureId   String
+  culture     Culture   @relation(fields: [cultureId], references: [id])
 
-  // Un pays a plusieurs provinces et villes
+  army        Army?
+
   provinces   Province[]
-  cities      City[]
+  cities      City[]    @relation("CountryCities")
+  events      Event[]
+  nationalSpirits NationalSpirit[]
 }
 
-model Religion {
+model Event {
+  id            String     @id @default(uuid())
+  name          String
+  description   String?
+  
+  countryId     String
+  country       Country    @relation(fields: [countryId], references: [id])
+  
+  createdAt     DateTime   @default(now())
+  isActive      Boolean    @default(true)
+  activeFor     Int        @default(1)  // Nombre de tours où l'événement reste actif
+
+  bonuses       EventBonus[]
+}
+
+model BonusType {
+  id          String   @id @default(uuid())
+  name        String   @unique // ex: "Economy", "Military", "Stability"
+  description String?
+  
+  eventBonuses EventBonus[]
+  nationalSpiritBonuses NationalSpiritBonus[]
+}
+
+model EventBonus {
+  id           String     @id @default(uuid())
+  eventId      String
+  bonusTypeId  String
+  modifierValue Float     // Float8: 0.15 = +15%
+
+  event        Event      @relation(fields: [eventId], references: [id])
+  bonusType    BonusType  @relation(fields: [bonusTypeId], references: [id])
+
+  @@unique([eventId, bonusTypeId])
+}
+
+model NationalSpirit {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  icon        String   // Nom du fichier image dans public/goals
+  
+  countryId   String
+  country     Country  @relation(fields: [countryId], references: [id])
+  
+  bonuses     NationalSpiritBonus[]
+}
+
+model NationalSpiritBonus {
+  id              String         @id @default(uuid())
+  nationalSpiritId String
+  bonusTypeId     String
+  modifierValue   Float
+
+  nationalSpirit  NationalSpirit @relation(fields: [nationalSpiritId], references: [id])
+  bonusType       BonusType      @relation(fields: [bonusTypeId], references: [id])
+
+  @@unique([nationalSpiritId, bonusTypeId])
+}
+
+model Army {
+  id        String   @id @default(uuid())
+  countryId String   @unique
+  country   Country  @relation(fields: [countryId], references: [id])
+  
+  infantry  Int      @default(0)
+  archers   Int      @default(0)
+  cavalry   Int      @default(0)
+  artillery Int      @default(0)
+  fleet     Int      @default(0)
+}
+
+model Regime {
   id        String    @id @default(uuid())
   name      String    @unique
-  description String?
+  category  String    // Monarchy, Republic, etc.
+  baseManpowerRate Float @default(0.15) // Pourcentage de la population recrutable (ex: 0.15 pour 15%)
   
   countries Country[]
 }
 
-model Culture {
-  id        String    @id @default(uuid())
-  name      String    @unique
+// --- Ressources ---
+model ResourceType {
+  id          String   @id @default(uuid())
+  name        String   @unique
   description String?
+  
+  biomeResources BiomeResource[]
+}
+
+// --- Biomes ---
+model Biome {
+  id              String   @id @default(uuid())
+  name            String   @unique // Grassland, Taiga, etc.
+  habitability    Int      // Pourcentage (0-100)
+  color           String?  // Pour l'affichage
+  
+  provinceBiomes  ProvinceBiome[]
+  resources       BiomeResource[]
+}
+
+model BiomeResource {
+  id             String       @id @default(uuid())
+  quantity       Int          @default(0) // Quantité de ressource par unité de biome
+  
+  biomeId        String
+  biome          Biome        @relation(fields: [biomeId], references: [id])
+  
+  resourceTypeId String
+  resourceType   ResourceType @relation(fields: [resourceTypeId], references: [id])
+  
+  @@unique([biomeId, resourceTypeId])
+}
+
+model ProvinceBiome {
+  id          String   @id @default(uuid())
+  cellCount   Int      // Nombre de cellules de ce biome dans la province
+  
+  provinceId  String
+  province    Province @relation(fields: [provinceId], references: [id])
+  
+  biomeId     String
+  biome       Biome    @relation(fields: [biomeId], references: [id])
+  
+  @@unique([provinceId, biomeId])
+}
+
+model Religion {
+  id              String        @id @default(uuid())
+  name            String        @unique
+  
+  typeId          String?
+  type            ReligionType? @relation(fields: [typeId], references: [id])
+  
+  formId          String?
+  form            ReligionForm? @relation(fields: [formId], references: [id])
+  
+  deityName       String?
+  areaKm2         Float?
+  followers       Int?
+  potential       String?       // "Global", "Culture", "State"
+  expansionFactor Float?
+  
+  color           String?
+  description     String?
+
+  countries       Country[]
+}
+
+model ReligionType {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  religions Religion[]
+}
+
+model ReligionForm {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  religions Religion[]
+}
+
+model Culture {
+  id              String       @id @default(uuid())
+  name            String       @unique
+  
+  typeId          String?
+  type            CultureType? @relation(fields: [typeId], references: [id])
+
+  cellCount       Int?
+  expansionFactor Float?
+  areaKm2         Float?
+  population      Int?
+  color           String?
+  description     String?
 
   countries Country[]
+}
+
+model CultureType {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  
+  cultures  Culture[]
 }
 
 // --- Géographie ---
 model Province {
   id        String   @id @default(uuid())
   name      String
+  color     String?
+  emblem    String?
+  areaKm2   Float?
+  population Int?
   
   countryId String
   country   Country  @relation(fields: [countryId], references: [id])
   
   cities    City[]
+  biomes    ProvinceBiome[]
 }
 
 model City {
@@ -77,9 +266,18 @@ model City {
   name       String
   population Int?
   isCapital  Boolean  @default(false)
+  
+  isPort            Boolean @default(false)
+  isWalled          Boolean @default(false)
+  hasCitadel        Boolean @default(false)
+  hasMarketplace    Boolean @default(false)
+  hasReligiousCenter Boolean @default(false)
+  hasShanty         Boolean @default(false)
 
   countryId  String
-  country    Country  @relation(fields: [countryId], references: [id])
+  country    Country  @relation("CountryCities", fields: [countryId], references: [id])
+  
+  capitalOf  Country? @relation("CountryCapital")
   
   provinceId String?
   province   Province? @relation(fields: [provinceId], references: [id])
